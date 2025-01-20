@@ -3,8 +3,25 @@ from app import mongo
 from datetime import datetime
 import logging
 from bson import ObjectId
+from faker import Faker
 
 logger = logging.getLogger(__name__)
+
+fake = Faker()
+
+def generate_sample_text(word_count):
+    """Generate sample text with the specified word count using Faker."""
+    words = []  # Start with an empty list to store words
+
+    # Add random words to the list one by one
+    for _ in range(word_count):
+        word = fake.word()  # Get a random word
+        words.append(word)  # Add the word to the list
+
+    # Join all the words into a single string with spaces in between
+    text = " ".join(words)
+
+    return text
 
 def start_game(username_or_email, mode, word_count=None, time_duration=None):
     try:
@@ -15,13 +32,13 @@ def start_game(username_or_email, mode, word_count=None, time_duration=None):
 
         user = mongo.db.users.find_one({"$or": [{"username": username_or_email}, {"email": username_or_email}]})
         if not user:
-            logger.error(f"User not found: {username_or_email}")
             return jsonify({"message": "User not found"}), 404
+
+        text = generate_sample_text(word_count) if mode == "words" else generate_sample_text(45)
 
         game_data = {
             "type": "singleplayer",
             "mode": mode,
-            "text": "This is a sample text for typing practice. Adjust it as needed.",
             "players": [{
                 "user_id": user["_id"],
                 "wpm": 0,
@@ -35,18 +52,16 @@ def start_game(username_or_email, mode, word_count=None, time_duration=None):
         }
 
         game_id = str(mongo.db.games.insert_one(game_data).inserted_id)
-        return jsonify({"message": "Game started successfully", "game_id": game_id, "text": game_data["text"]}), 200
+        return jsonify({"message": "Game started successfully", "game_id": game_id, "text": text}), 200
 
     except Exception as e:
-        logger.error(f"Error starting game: {e}")
         return jsonify({"message": "An error occurred while starting the game"}), 500
 
 def end_game(game_id, user_id, wpm, accuracy):
     try:
-        try:
+        if ObjectId.is_valid(game_id) and ObjectId.is_valid(user_id):
             game_id, user_id = ObjectId(game_id), ObjectId(user_id)
-        except Exception as e:
-            logger.error(f"Invalid game_id or user_id: {e}")
+        else:
             return jsonify({"message": "Invalid game_id or user_id"}), 400
 
         update_result = mongo.db.games.update_one(
@@ -59,15 +74,12 @@ def end_game(game_id, user_id, wpm, accuracy):
         }}
 )
 
-
         if not update_result.matched_count:
-            logger.error(f"No matching game or player found for game_id: {game_id}, user_id: {user_id}")
             return jsonify({"message": "Game or player not found"}), 404
 
         game = mongo.db.games.find_one({"_id": game_id})
         user = mongo.db.users.find_one({"_id": user_id})
         if not game or not user:
-            logger.error(f"Game or user not found: game_id={game_id}, user_id={user_id}")
             return jsonify({"message": "Game or user not found"}), 404
 
         stats = user["stats"]["overall"]
@@ -101,9 +113,7 @@ def end_game(game_id, user_id, wpm, accuracy):
              }}
         )
 
-        logger.info(f"Game {game_id} ended successfully for user {user_id}")
         return jsonify({"message": "Game ended successfully"}), 200
 
     except Exception as e:
-        logger.error(f"Error ending game: {e}", exc_info=True)
         return jsonify({"message": "An error occurred while ending the game"}), 500
