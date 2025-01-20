@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from controllers.auth_controller import login, register
-from controllers.user_controller import profile
+from controllers.user.auth_controller import login, register
+from controllers.user.user_controller import profile
 
 # Blueprint definition
 user = Blueprint('user', __name__)

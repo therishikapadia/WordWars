@@ -1,10 +1,9 @@
 from flask import jsonify
-from app import bcrypt, mongo
+from app import mongo, bcrypt  # Import bcrypt from your Flask app
 from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
-
 
 def login(username_or_email, password):
     try:
@@ -18,6 +17,7 @@ def login(username_or_email, password):
             ]
         })
 
+        # Use Flask-Bcrypt to check the password
         if user_data and bcrypt.check_password_hash(user_data['password'], password):
             from flask_jwt_extended import create_access_token
             access_token = create_access_token(identity=user_data['username'])
@@ -35,7 +35,6 @@ def login(username_or_email, password):
         logger.error(f"Error during login: {e}")
         return jsonify({"message": "An error occurred during login"}), 500
 
-
 def register(username, email, password):
     try:
         if not username or not email or not password:
@@ -51,6 +50,7 @@ def register(username, email, password):
             else:
                 return jsonify({"message": "Email already exists"}), 400
 
+        # Hash the password using Flask-Bcrypt
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
         mongo.db.users.insert_one({
@@ -58,9 +58,21 @@ def register(username, email, password):
             "email": email,
             "password": hashed_password,
             "stats": {
-                "total_games": 0,
-                "average_wpm": 0,
-                "best_wpm": 0
+                "overall": {
+                    "tests_completed": 0,
+                    "average_wpm": 0.0,
+                    "overall_accuracy": 0.0,
+                    "all_time_best": {
+                        "time_mode": {
+                            "wpm": 0,
+                            "seconds": 0
+                        },
+                        "words_mode": {
+                            "wpm": 0
+                        }
+                    }
+                },
+                "test_history": []  # Initialize empty test history
             },
             "created_at": datetime.utcnow()
         })
