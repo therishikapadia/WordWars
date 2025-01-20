@@ -1,7 +1,6 @@
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from controllers.user.auth_controller import login, register
-from controllers.user.user_controller import profile
 
 # Blueprint definition
 user = Blueprint('user', __name__)
@@ -20,10 +19,3 @@ def register_route():
     email = request.json.get('email')
     password = request.json.get('password')
     return register(username, email, password)
-
-
-@user.route('/profile', methods=['GET'])
-@jwt_required()
-def profile_route():
-    current_user = get_jwt_identity()
-    return profile(current_user)

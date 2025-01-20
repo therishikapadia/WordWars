@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Typing Speed Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #game {
+            display: none;
+        }
+        #sentence {
+            font-size: 1.5em;
+            margin: 20px;
+        }
+        #typed-text {
+            width: 80%;
+            height: 100px;
+            font-size: 1.2em;
+        }
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Multiplayer Typing Speed Test</h1>
+    <div id="lobby">
+        <input type="text" id="username" placeholder="Enter your username">
+        <button onclick="createGame()">Create Game</button>
+        <br><br>
+        <input type="text" id="game-id" placeholder="Enter Game ID">
+        <button onclick="joinGame()">Join Game</button>
+    </div>
+    <div id="game">
+        <p id="sentence"></p>
+        <textarea id="typed-text" placeholder="Start typing here..."></textarea>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const socket = io();
+        let gameId;
+        let username;
+        let sentence = '';
+
+        socket.on('connect', () => {
+            console.log('Connected to Socket.IO server');
+        });
+
+        socket.on('game_created', (data) => {
+            console.log('Game created:', data);
+            gameId = data.game_id;
+            alert(`Game created! Game ID: ${gameId}`);
+            showGame();
+        });
+
+        socket.on('player_joined', (data) => {
+            console.log('Player joined:', data);
+            alert(`${data.username} joined the game!`);
+        });
+
+        socket.on('update_players', (data) => {
+            console.log('Players:', data.players);
+        });
+
+        socket.on('game_started', (data) => {
+            console.log('Game started:', data);
+            sentence = data.sentence;
+            document.getElementById('sentence').textContent = sentence;  // Display the sentence
+            document.getElementById('typed-text').value = '';  // Clear the textarea
+            document.getElementById('typed-text').focus();  // Focus on the textarea
+        });
+
+        socket.on('result_submitted', (data) => {
+            console.log('Result submitted:', data);
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<p>${data.username}: ${data.wpm} WPM</p>`;
+        });
+
+        socket.on('game_over', (data) => {
+            console.log('Game over:', data);
+            alert('Game over!');
+            console.log('Final results:', data.results);
+        });
+
+        socket.on('error', (data) => {
+            console.error('Error:', data.message);
+            alert(data.message);
+        });
+
+        function createGame() {
+            username = document.getElementById('username').value;
+            if (username) {
+                socket.emit('create_game', username);
+            } else {
+                alert('Please enter a username.');
+            }
+        }
+
+        function joinGame() {
+            username = document.getElementById('username').value;
+            gameId = document.getElementById('game-id').value;
+            if (username && gameId) {
+                socket.emit('join_game', { game_id: gameId, username: username });
+                showGame();
+            } else {
+                alert('Please enter a username and game ID.');
+            }
+        }
+
+        function showGame() {
+            document.getElementById('lobby').style.display = 'none';
+            document.getElementById('game').style.display = 'block';
+        }
+
+        // Automatically submit result when the user finishes typing
+        document.getElementById('typed-text').addEventListener('input', (event) => {
+            const typedText = event.target.value;
+            if (typedText === sentence) {
+                // Automatically submit the result
+                socket.emit('submit_result', { game_id: gameId, username: username, typed_text: typedText });
+                event.target.disabled = true;  // Disable the textarea after submission
+            }
+        });
+    </script>
+</body>
+</html>
