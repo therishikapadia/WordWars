@@ -64,8 +64,11 @@ def end_game(game_id, user_id, wpm, accuracy):
         else:
             return jsonify({"message": "Invalid game_id or user_id"}), 400
 
+        print(game_id, user_id, wpm, accuracy)
+        # update_result= mongo.db.games.find({"_id": ObjectId('678e681d180d660aa38432e9')}) 
+                
         update_result = mongo.db.games.update_one(
-        {"_id": game_id, "players.user_id._id": user_id},
+        {"_id": game_id, "players.user_id": user_id},
         {"$set": {
         "players.$.wpm": wpm,
         "players.$.accuracy": accuracy,
@@ -73,13 +76,15 @@ def end_game(game_id, user_id, wpm, accuracy):
         "ended_at": datetime.utcnow()
         }}
 )
-
+        print(update_result)
         if not update_result.matched_count:
+            logger.error("Game or player not found")
             return jsonify({"message": "Game or player not found"}), 404
 
         game = mongo.db.games.find_one({"_id": game_id})
         user = mongo.db.users.find_one({"_id": user_id})
         if not game or not user:
+            logger.error("Game or user not foun hehhe")
             return jsonify({"message": "Game or user not found"}), 404
 
         stats = user["stats"]["overall"]

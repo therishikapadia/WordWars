@@ -16,7 +16,7 @@ def create_app():
     # MongoDB configuration
     app.config["MONGO_URI"] = "mongodb://localhost:27017/mydatabase"
     app.config['SECRET_KEY'] = '1Word@Wars1'
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+    # app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
     # Initialize extensions
     mongo = PyMongo(app)

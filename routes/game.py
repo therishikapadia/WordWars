@@ -18,7 +18,7 @@ def start_game_route():
 @game.route('/end', methods=['POST'])
 @jwt_required()
 def end_game_route():
-    current_user = get_jwt_identity()  # Typically, this is not an ObjectId
+    current_user = get_jwt_identity() 
     game_id = request.json.get('game_id')
     wpm = request.json.get('wpm')
     accuracy = request.json.get('accuracy')
