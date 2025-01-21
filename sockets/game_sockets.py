@@ -1,27 +1,30 @@
 from flask_socketio import join_room, emit
+from flask import jsonify
 import random
 import time
+from utils.fake_data import generate_sample_text
 
 # Game sentences
-SENTENCES = [
-    "The quick brown fox jumps over the lazy dog.",
-    "Python is an amazing programming language.",
-    "Real-time applications are fun to build.",
-    "Flask and Socket.IO make a great combination.",
-    "Practice makes perfect when it comes to typing."
-]
 
 # In-memory storage for active games
 games = {}
 
 def register_game_sockets(socketio):
     @socketio.on('create_game')
-    def handle_create_game(username):
+    def handle_create_game(username,mode, word_count=None, time_duration=None):
         game_id = str(random.randint(1000, 9999))
+
+        if mode not in ["words", "time"] or \
+           (mode == "words" and word_count not in [15, 30, 45]) or \
+           (mode == "time" and time_duration not in [15, 30, 60]):
+            return jsonify({"message": "Invalid input"}), 400
+
+        text = generate_sample_text(word_count) if mode == "words" else generate_sample_text(45)
+
         games[game_id] = {
             'creator': username,
             'players': [{'username': username, 'isCreator': True}],
-            'sentence': random.choice(SENTENCES),
+            'sentence':text ,
             'start_time': None,
             'results': {},
             'stats': {}

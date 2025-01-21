@@ -3,25 +3,26 @@ from app import mongo
 from datetime import datetime
 import logging
 from bson import ObjectId
-from faker import Faker
+from utils.fake_data import generate_sample_text
+# from faker import Faker
 
 logger = logging.getLogger(__name__)
 
-fake = Faker()
+# fake = Faker()
 
-def generate_sample_text(word_count):
-    """Generate sample text with the specified word count using Faker."""
-    words = []  # Start with an empty list to store words
+# def generate_sample_text(word_count):
+#     """Generate sample text with the specified word count using Faker."""
+#     words = []  # Start with an empty list to store words
 
-    # Add random words to the list one by one
-    for _ in range(word_count):
-        word = fake.word()  # Get a random word
-        words.append(word)  # Add the word to the list
+#     # Add random words to the list one by one
+#     for _ in range(word_count):
+#         word = fake.word()  # Get a random word
+#         words.append(word)  # Add the word to the list
 
-    # Join all the words into a single string with spaces in between
-    text = " ".join(words)
+#     # Join all the words into a single string with spaces in between
+#     text = " ".join(words)
 
-    return text
+#     return text
 
 def start_game(username_or_email, mode, word_count=None, time_duration=None):
     try:

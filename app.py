@@ -32,15 +32,19 @@ def create_app():
     from routes.user import user
     from routes.game import game
     from routes.profile import profile
+    from routes.leaderboard import leaderboard
     app.register_blueprint(user, url_prefix='/user')
     app.register_blueprint(game, url_prefix='/game')
     app.register_blueprint(profile, url_prefix='/profile')
+    app.register_blueprint(leaderboard, url_prefix='/leaderboard')
 
     @app.route('/')
     def index():
         return send_from_directory('static', 'index.html')
 
-app = create_app()
+    return app  # Return the app instance
+
+app = create_app()  # Assign the returned app instance
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, transport=['websockets'])
