@@ -1,0 +1,27 @@
+[{
+  "_id": {
+    "$oid": "678e681d180d660aa38432e9"
+  },
+  "type": "singleplayer",
+  "mode": "words",
+  "players": [
+    {
+      "user_id": {
+        "$oid": "678e6802180d660aa38432e8"
+      },
+      "wpm": 60,
+      "accuracy": 95.5,
+      "finished_at": {
+        "$date": "2025-01-20T15:40:09.419Z"
+      }
+    }
+  ],
+  "started_at": {
+    "$date": "2025-01-20T15:13:33.550Z"
+  },
+  "ended_at": {
+    "$date": "2025-01-20T15:40:09.419Z"
+  },
+  "word_count": 30,
+  "time_duration": null
+}]
