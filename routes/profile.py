@@ -6,7 +6,7 @@ from controllers.profile import profile_section, bar_graph
 # Blueprint definition
 profile = Blueprint('profile', __name__)
 
-@profile.route('/profile', methods=['GET'])
+@profile.route('/data', methods=['GET'])
 @jwt_required()
 def profile_route():
     current_user = get_jwt_identity()

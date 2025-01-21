@@ -26,7 +26,9 @@ def create_app():
     # importing routes
     from routes.user import user
     from routes.game import game
+    from routes.profile import profile
     app.register_blueprint(user, url_prefix='/user')
     app.register_blueprint(game, url_prefix='/game')
+    app.register_blueprint(profile, url_prefix='/profile')
 
     return app
