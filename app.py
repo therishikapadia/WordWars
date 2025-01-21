@@ -1,16 +1,17 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
-# from datetime import timedelta
+from flask_socketio import SocketIO
+from sockets.game_sockets import register_game_sockets
 
-
+# Global variables for extensions
 mongo = None
 bcrypt = None
-
+socketio = None
 
 def create_app():
-    global mongo, bcrypt
+    global mongo, bcrypt, socketio
     app = Flask(__name__)
 
     # MongoDB configuration
@@ -22,8 +23,12 @@ def create_app():
     mongo = PyMongo(app)
     bcrypt = Bcrypt(app)
     jwt = JWTManager(app)
+    socketio = SocketIO(app)
 
-    # importing routes
+    # Register Socket.IO event handlers
+    register_game_sockets(socketio)
+
+    # Importing routes
     from routes.user import user
     from routes.game import game
     from routes.profile import profile
@@ -31,4 +36,11 @@ def create_app():
     app.register_blueprint(game, url_prefix='/game')
     app.register_blueprint(profile, url_prefix='/profile')
 
-    return app
+    @app.route('/')
+    def index():
+        return send_from_directory('static', 'index.html')
+
+app = create_app()
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True, transport=['websockets'])

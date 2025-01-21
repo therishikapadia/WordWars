@@ -1,46 +1,33 @@
-from flask import Flask, render_template
-from flask_socketio import SocketIO, emit, join_room
+from flask_socketio import join_room, emit
 import random
 import time
 
-socketio = SocketIO()
+# Game sentences
+SENTENCES = [
+    "The quick brown fox jumps over the lazy dog.",
+    "Python is an amazing programming language.",
+    "Real-time applications are fun to build.",
+    "Flask and Socket.IO make a great combination.",
+    "Practice makes perfect when it comes to typing."
+]
 
-def create_app():
-    app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'your_secret_key'
-    socketio.init_app(app)
+# In-memory storage for active games
+games = {}
 
-    SENTENCES = [
-        "The quick brown fox jumps over the lazy dog.",
-        "Python is an amazing programming language.",
-        "Real-time applications are fun to build.",
-        "Flask and Socket.IO make a great combination.",
-        "Practice makes perfect when it comes to typing."
-    ]
-
-    games = {}
-
-    @app.route('/')
-    def index():
-        return render_template('index.html')
-
+def register_game_sockets(socketio):
     @socketio.on('create_game')
     def handle_create_game(username):
         game_id = str(random.randint(1000, 9999))
         games[game_id] = {
-            'creator': username,  # Track the creator
-            'players': [{'username': username, 'isCreator': True}],  # Store players as objects
+            'creator': username,
+            'players': [{'username': username, 'isCreator': True}],
             'sentence': random.choice(SENTENCES),
             'start_time': None,
             'results': {},
             'stats': {}
         }
         join_room(game_id)
-        emit('game_created', {
-            'game_id': game_id,
-            'is_creator': True  # The creator is always the first player
-        }, room=game_id)
-
+        emit('game_created', {'game_id': game_id, 'is_creator': True}, room=game_id)
 
     @socketio.on('join_game')
     def handle_join_game(data):
@@ -48,27 +35,18 @@ def create_app():
         username = data['username']
         if game_id in games:
             join_room(game_id)
-            is_creator = username == games[game_id]['creator']  # Check if the user is the creator
-            games[game_id]['players'].append({'username': username, 'isCreator': is_creator})  # Add player as an object
+            is_creator = username == games[game_id]['creator']
+            games[game_id]['players'].append({'username': username, 'isCreator': is_creator})
             emit('player_joined', {'username': username}, room=game_id)
-            emit('update_players', {
-                'players': games[game_id]['players']  # Send the list of player objects
-            }, room=game_id)
+            emit('update_players', {'players': games[game_id]['players']}, room=game_id)
         else:
             emit('error', {'message': 'Game not found'})
-
-    def join_game(game_id, username):
-        games[game_id]['players'].append(username)
-        is_creator = username == games[game_id]['creator']  # Check if the user is the creator
-        emit('player_joined', {'username': username}, room=game_id)
-        emit('update_players', {'players': games[game_id]['players'], 'is_creator': is_creator}, room=game_id)  # Send is_creator flag
-
 
     @socketio.on('start_game_for_all')
     def handle_start_game_for_all(data):
         game_id = data['game_id']
         if game_id in games:
-            print(f"Starting game for all players in room: {game_id}")  # Debug log
+            print(f"Starting game for all players in room: {game_id}")
             games[game_id]['start_time'] = time.time()
             emit('game_started_for_all', {
                 'sentence': games[game_id]['sentence'],
@@ -105,10 +83,3 @@ def create_app():
             if len(games[game_id]['results']) == len(games[game_id]['players']):
                 emit('game_over', {'results': games[game_id]['results']}, room=game_id)
                 del games[game_id]
-
-    return app
-
-app = create_app()
-
-if __name__ == '__main__':
-    socketio.run(app, debug=True,transport=['websockets'])
