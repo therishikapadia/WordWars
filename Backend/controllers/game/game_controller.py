@@ -4,25 +4,9 @@ from datetime import datetime
 import logging
 from bson import ObjectId
 from utils.fake_data import generate_sample_text
-# from faker import Faker
 
 logger = logging.getLogger(__name__)
 
-# fake = Faker()
-
-# def generate_sample_text(word_count):
-#     """Generate sample text with the specified word count using Faker."""
-#     words = []  # Start with an empty list to store words
-
-#     # Add random words to the list one by one
-#     for _ in range(word_count):
-#         word = fake.word()  # Get a random word
-#         words.append(word)  # Add the word to the list
-
-#     # Join all the words into a single string with spaces in between
-#     text = " ".join(words)
-
-#     return text
 
 def start_game(username_or_email, mode, word_count=None, time_duration=None,time_taken=None):
     try:
@@ -44,14 +28,21 @@ def start_game(username_or_email, mode, word_count=None, time_duration=None,time
                 "user_id": user["_id"],
                 "wpm": 0,
                 "accuracy": 0.0,
-                "finished_at": None
+                # "finished_at": None
             }],
             "started_at": datetime.utcnow(),
-            "ended_at": None,
-            "word_count": word_count if mode == "words" else None,
-            "time_taken": time_taken if mode == "mode" else None, 
-            "time_duration": time_duration if mode == "time" else None
+            # "ended_at": None,
+            # "word_count": word_count if mode == "words" else None, 
+            # "time_duration": time_duration if mode == "time" else None,
+            # "time_taken": None
         }
+
+        if game_data["mode"] == "time":
+            game_data["time_duration"] = time_duration
+        elif game_data["mode"] == "words" and word_count is not None:
+            game_data["word_count"] = word_count
+        elif game_data["mode"] == "words" and time_taken is not None:
+            game_data["time_taken"] = time_taken
 
         game_id = str(mongo.db.games.insert_one(game_data).inserted_id)
         return jsonify({"message": "Game started successfully", "game_id": game_id, "text": text}), 200
@@ -59,36 +50,39 @@ def start_game(username_or_email, mode, word_count=None, time_duration=None,time
     except Exception as e:
         return jsonify({"message": "An error occurred while starting the game"}), 500
 
-def end_game(game_id, user_id, wpm, accuracy):
+def end_game(game_id, user_id, wpm, accuracy, time_taken=None):
     try:
-        if ObjectId.is_valid(game_id) and ObjectId.is_valid(user_id):
-            game_id, user_id = ObjectId(game_id), ObjectId(user_id)
-        else:
+        # Validate game_id and user_id
+        if not (ObjectId.is_valid(game_id) and ObjectId.is_valid(user_id)):
             return jsonify({"message": "Invalid game_id or user_id"}), 400
 
-        print(game_id, user_id, wpm, accuracy)
-        # update_result= mongo.db.games.find({"_id": ObjectId('678e681d180d660aa38432e9')}) 
-                
+        game_id, user_id = ObjectId(game_id), ObjectId(user_id)
+
+        # Update game document
+        update_data = {
+            "players.$.wpm": wpm,
+            "players.$.accuracy": accuracy,
+            "players.$.finished_at": datetime.now(),
+            "ended_at": datetime.now()
+        }
+        if time_taken is not None:
+            update_data["players.$.time_taken"] = time_taken
+
         update_result = mongo.db.games.update_one(
-        {"_id": game_id, "players.user_id": user_id},
-        {"$set": {
-        "players.$.wpm": wpm,
-        "players.$.accuracy": accuracy,
-        "players.$.finished_at": datetime.utcnow(),
-        "ended_at": datetime.utcnow()
-        }}
-)
-        print(update_result)
+            {"_id": game_id, "players.user_id": user_id},
+            {"$set": update_data}
+        )
+
         if not update_result.matched_count:
-            logger.error("Game or player not found")
             return jsonify({"message": "Game or player not found"}), 404
 
+        # Fetch game and user
         game = mongo.db.games.find_one({"_id": game_id})
         user = mongo.db.users.find_one({"_id": user_id})
         if not game or not user:
-            logger.error("Game or user not foun hehhe")
             return jsonify({"message": "Game or user not found"}), 404
 
+        # Update user statistics
         stats = user["stats"]["overall"]
         total_tests = stats["tests_completed"] + 1
         new_avg_wpm = (stats["average_wpm"] * stats["tests_completed"] + wpm) / total_tests
@@ -100,27 +94,37 @@ def end_game(game_id, user_id, wpm, accuracy):
         elif game["mode"] == "words" and wpm > all_time_best["words_mode"]["wpm"]:
             all_time_best["words_mode"]["wpm"] = wpm
 
+        # Prepare test_history entry
+        test_history_entry = {
+            "mode": game["mode"],
+            "wpm": wpm,
+            "accuracy": accuracy,
+            "timestamp": datetime.now(),
+            # "word_count": game.get("word_count")
+        }
+        if game["mode"] == "time":
+            test_history_entry["time_duration"] = game.get("time_duration")
+        elif game["mode"] == "words" and time_taken is not None:
+            test_history_entry["word_count"] = game.get("word_count")
+        elif game["mode"] == "words" and time_taken is not None:
+            test_history_entry["time_taken"] = time_taken
+
+        # Update user document
         mongo.db.users.update_one(
             {"_id": user_id},
-            {"$inc": {"stats.overall.tests_completed": 1},
-             "$set": {
-                 "stats.overall.average_wpm": new_avg_wpm,
-                 "stats.overall.overall_accuracy": new_avg_accuracy,
-                 "stats.overall.all_time_best": all_time_best
-             },
-             "$push": {
-                 "stats.test_history": {
-                     "mode": game["mode"],
-                     "wpm": wpm,
-                     "accuracy": accuracy,
-                     "timestamp": datetime.utcnow(),
-                     "word_count": game.get("word_count"),
-                     "time_duration": game.get("time_duration")
-                 }
-             }}
+            {
+                "$inc": {"stats.overall.tests_completed": 1},
+                "$set": {
+                    "stats.overall.average_wpm": new_avg_wpm,
+                    "stats.overall.overall_accuracy": new_avg_accuracy,
+                    "stats.overall.all_time_best": all_time_best
+                },
+                "$push": {"stats.test_history": test_history_entry}
+            }
         )
 
         return jsonify({"message": "Game ended successfully"}), 200
 
     except Exception as e:
+        logger.error(f"An error occurred while ending the game: {str(e)}")
         return jsonify({"message": "An error occurred while ending the game"}), 500

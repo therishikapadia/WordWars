@@ -16,7 +16,6 @@ def login(username_or_email, password):
                 {"email": username_or_email}
             ]
         })
-
         # Use Flask-Bcrypt to check the password
         if user_data and bcrypt.check_password_hash(user_data['password'], password):
             from flask_jwt_extended import create_access_token
@@ -26,14 +25,12 @@ def login(username_or_email, password):
             "message": "Login successful",
             "username": user_data['username'],
             "email": user_data['email'],
+            "access_token": access_token,
             "stats": user_data.get('stats', {})
             }), 200)
-            response.set_cookie('access_token', access_token)
             return response
-        
         else:
             return jsonify({"message": "Invalid credentials"}), 401
-
     except Exception as e:
         logger.error(f"Error during login: {e}")
         return jsonify({"message": "An error occurred during login"}), 500
@@ -77,11 +74,9 @@ def register(username, email, password):
                 },
                 "test_history": []  # Initialize empty test history
             },
-            "created_at": datetime.utcnow()
+            "created_at": datetime.now()
         })
-
         return jsonify({"message": "User registered successfully"}), 201
-
     except Exception as e:
         logger.error(f"Error during registration: {e}")
         return jsonify({"message": "An error occurred during registration"}), 500
