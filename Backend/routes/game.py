@@ -7,7 +7,6 @@ from app import mongo
 game = Blueprint('game', __name__)
 
 @game.route('/start', methods=['POST'])
-@jwt_required()
 def start_game_route():
     current_user = get_jwt_identity()
     mode = request.json.get('mode')
@@ -22,6 +21,7 @@ def end_game_route():
     game_id = request.json.get('game_id')
     wpm = request.json.get('wpm')
     accuracy = request.json.get('accuracy')
+    time_taken =request.json.get('time_taken')
 
     # Fetch user from the database using `current_user`
     user = mongo.db.users.find_one({"username": current_user})

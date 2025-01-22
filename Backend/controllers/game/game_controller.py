@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 #     return text
 
-def start_game(username_or_email, mode, word_count=None, time_duration=None):
+def start_game(username_or_email, mode, word_count=None, time_duration=None,time_taken=None):
     try:
         if mode not in ["words", "time"] or \
            (mode == "words" and word_count not in [15, 30, 45]) or \
@@ -49,6 +49,7 @@ def start_game(username_or_email, mode, word_count=None, time_duration=None):
             "started_at": datetime.utcnow(),
             "ended_at": None,
             "word_count": word_count if mode == "words" else None,
+            "time_taken": time_taken if mode == "mode" else None, 
             "time_duration": time_duration if mode == "time" else None
         }
 

@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, make_response
 from app import mongo, bcrypt  # Import bcrypt from your Flask app
 from datetime import datetime
 import logging
@@ -21,13 +21,16 @@ def login(username_or_email, password):
         if user_data and bcrypt.check_password_hash(user_data['password'], password):
             from flask_jwt_extended import create_access_token
             access_token = create_access_token(identity=user_data['username'])
-            return jsonify({
-                "message": "Login successful",
-                "access_token": access_token,
-                "username": user_data['username'],
-                "email": user_data['email'],
-                "stats": user_data.get('stats', {})
-            }), 200
+
+            response = make_response(jsonify({
+            "message": "Login successful",
+            "username": user_data['username'],
+            "email": user_data['email'],
+            "stats": user_data.get('stats', {})
+            }), 200)
+            response.set_cookie('access_token', access_token)
+            return response
+        
         else:
             return jsonify({"message": "Invalid credentials"}), 401
 
