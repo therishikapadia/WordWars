@@ -79,6 +79,7 @@ def end_game(game_id, user_id, wpm, accuracy, time_taken=None):
         # Fetch game and user
         game = mongo.db.games.find_one({"_id": game_id})
         user = mongo.db.users.find_one({"_id": user_id})
+        
         if not game or not user:
             return jsonify({"message": "Game or user not found"}), 404
 

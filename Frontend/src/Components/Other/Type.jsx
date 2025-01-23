@@ -9,7 +9,7 @@ const Type = () => {
     const [startTime, setStartTime] = useState(null);
     const [timeElapsed, setTimeElapsed] = useState(0);
     const [wpm, setWpm] = useState(0);
-    const [accuracy, setAccuracy] = useState(100);
+    const [accuracy, setAccuracy] = useState(100); // Start accuracy at 100%
     const [wpmPerMinute, setWpmPerMinute] = useState([]); // Track WPM per minute
     const [isFinished, setIsFinished] = useState(false);
 
@@ -22,16 +22,33 @@ const Type = () => {
         setUserInput(event.target.value);
     };
 
-    const calculateStats = () => {
-        const totalTimeInMinutes = timeElapsed / 60;  // Time in minutes
-        const totalWordsTyped = userInput.trim().split(/\s+/).length;
-        const calculatedWPM = Math.round(totalWordsTyped / (timeElapsed / 60)); // WPM per minute
-        setWpm(calculatedWPM);
+    const handleKeyDown = (event) => {
+        // Prevent default behavior for left and right arrow keys
+        if (["ArrowLeft", "ArrowRight"].includes(event.key)) {
+            event.preventDefault();
+        }
+    };
 
+    const calculateStats = () => {
+        const totalTimeInMinutes = timeElapsed / 60; // Time in minutes
+
+        // Calculate correct characters
         const correctChars = userInput
             .split("")
             .filter((char, index) => char === targetText[index]).length;
-        const calculatedAccuracy = ((correctChars / targetText.length) * 100).toFixed(2);
+
+        // Calculate WPM: (correct characters / 5) / time in minutes
+        const calculatedWPM = Math.round((correctChars / 5) / totalTimeInMinutes);
+        setWpm(calculatedWPM);
+
+        // Calculate accuracy
+        let calculatedAccuracy = 100; // Start at 100%
+        if (userInput.length > 0) {
+            const mistakes = userInput
+                .split("")
+                .filter((char, index) => char !== targetText[index]).length;
+            calculatedAccuracy = Math.max(0, 100 - (mistakes / targetText.length) * 100).toFixed(2);
+        }
         setAccuracy(calculatedAccuracy);
 
         // Store WPM per minute
@@ -42,14 +59,15 @@ const Type = () => {
         if (!startTime) return;
 
         const intervalId = setInterval(() => {
-            setTimeElapsed(Math.floor((Date.now() - startTime) / 1000));  // Time in seconds
+            setTimeElapsed(Math.floor((Date.now() - startTime) / 1000)); // Time in seconds
         }, 1000);
 
         return () => clearInterval(intervalId);
     }, [startTime]);
 
     useEffect(() => {
-        if (userInput === targetText && !isFinished) {
+        // Finish the game when the user types the last letter
+        if (userInput.length === targetText.length && !isFinished) {
             setIsFinished(true);
             navigate("/result", { state: { timeElapsed, wpm, accuracy, wpmPerMinute } });
         }
@@ -79,8 +97,6 @@ const Type = () => {
             );
         });
     };
-
-
 
     return (
         <div className="antialiased min-h-screen bg-gradient-to-b from-neutral-900 to-black text-neutral-400">
@@ -163,6 +179,7 @@ const Type = () => {
                             className="absolute top-0 pb-10 inset-0 bg-transparent outline-none text-transparent caret-transparent"
                             value={userInput}
                             onChange={handleInputChange}
+                            onKeyDown={handleKeyDown} // Add the keydown event handler
                         />
                     </div>
                     <div className="mt-8 text-center geist-mono-latin-400 text-xl">

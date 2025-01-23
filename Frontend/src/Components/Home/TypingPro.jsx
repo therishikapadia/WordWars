@@ -8,7 +8,7 @@ function TypingPro() {
                     Ready to Become a <span className="underline underline-offset-8 decoration-emerald-400">Typing Pro</span>
                     ?</h2>
                 <p className="text-xl geist-mono-latin-400 text-neutral-400 max-w-2xl mx-auto leading-relaxed" style={{ transform: "translateY(20px)" }}>
-                    Join thousands of users who have improved their typing speed and accuracy with TypeFast.</p>
+                    Join thousands of users who have improved their typing speed and accuracy with WordWars.</p>
                 <div style={{ transform: "translateY(20px)" }}>
                     <a className="inline-flex items-center justify-center gap-2 geist-mono-latin-600 text-white whitespace-nowrap text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 text-primary-foreground shadow bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-700 hover:to-emerald-800 font-semibold transition-all duration-300 h-10 rounded-md px-8" href="/type">
                         Get Started for Free
