@@ -9,9 +9,7 @@ leaderboard = Blueprint('leaderboard', __name__)
 
 @leaderboard.route('/top10', methods=['GET'])
 def get_leaderboard_data():
-    leaderboard = get_leaderboard()
-    return jsonify(leaderboard)
-
+    return get_leaderboard()
 
 @leaderboard.route('/<user_id>', methods=['GET'])
 def myLeaderboad(user_id):

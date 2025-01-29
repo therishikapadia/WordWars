@@ -6,41 +6,24 @@ logger = logging.getLogger(__name__)
 
 def get_leaderboard():
     try:
-        logger.info("Fetching leaderboard data from MongoDB...")
-        users = mongo.db.users.find({}, {
-            'username': 1,
-            'stats.overall.tests_completed': 1,
-            'stats.overall.average_wpm': 1,
-            'stats.overall.overall_accuracy': 1,
-            'stats.overall.all_time_best': 1
-        }).sort('stats.overall.average_wpm', -1).limit(10)
+        leaderboard_data = []
+        leaderboard = mongo.db.users.find()
 
-        # Convert cursor to list
-        users_list = list(users)  # Converting cursor to a list for easier iteration
-
-        # Print users for debugging
-        logger.debug("Printing users from MongoDB cursor:")
-        for user in users_list:
-            logger.debug(user)  # Print each user document
-
-        leaderboard = []
-        for user in users_list:
-            leaderboard.append({
-                'username': user['username'],
-                'tests_completed': user['stats']['overall']['tests_completed'],
-                'average_wpm': user['stats']['overall']['average_wpm'],
-                'overall_accuracy': user['stats']['overall']['overall_accuracy'],
-                'all_time_best': user['stats']['overall']['all_time_best']
+        for user in leaderboard:
+            overall_stats = user.get('stats', {}).get('overall', {})
+            all_time_best = overall_stats.get('all_time_best', {})
+            leaderboard_data.append({
+                'username': user.get('username'),
+                'wpm': overall_stats.get('average_wpm', 0),
+                'accuracy': overall_stats.get('overall_accuracy', 0),
+                'best_time_mode_wpm': all_time_best.get('time_mode', {}).get('wpm', 0),
+                'best_words_mode_wpm': all_time_best.get('words_mode', {}).get('wpm', 0)
             })
+        print(leaderboard_data)
 
-        logger.info("Leaderboard data fetched successfully.")
-        return leaderboard
-    except KeyError as e:
-        logger.error(f"Missing required field in user document: {e}", exc_info=True)
-        return []
+        return jsonify({"leaderboard": leaderboard_data}), 200
     except Exception as e:
-        logger.error(f"An error occurred: {e}", exc_info=True)
-        return []
+        return jsonify({'error': str(e)}), 500
         
 
 def get_user_stats(user_id):
