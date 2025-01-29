@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../Common/Navbar";
 import "../../Font.css";
 
-const Type = () => {
+const Type = ({isAuthenticated}) => {
     const targetText = "find audience colony chose fellow minerals beginning respect cookies business";
     const [userInput, setUserInput] = useState("");
     const [startTime, setStartTime] = useState(null);
@@ -100,7 +100,7 @@ const Type = () => {
 
     return (
         <div className="antialiased min-h-screen bg-gradient-to-b from-neutral-900 to-black text-neutral-400">
-            <Navbar />
+            <Navbar isAuthenticated={isAuthenticated} />
             <main className="grid place-content-center mt-20">
                 <div className="w-full max-w-4xl">
                     <div className="mb-8">

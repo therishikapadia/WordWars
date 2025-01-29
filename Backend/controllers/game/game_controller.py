@@ -129,3 +129,17 @@ def end_game(game_id, user_id, wpm, accuracy, time_taken=None):
     except Exception as e:
         logger.error(f"An error occurred while ending the game: {str(e)}")
         return jsonify({"message": "An error occurred while ending the game"}), 500
+    
+
+def start_game_without_login(mode, word_count=None, time_duration=None):
+    try:
+        if mode not in ["words", "time"] or \
+           (mode == "words" and word_count not in [15, 30, 45]) or \
+           (mode == "time" and time_duration not in [15, 30, 60]):
+            return jsonify({"message": "Invalid input"}), 400
+
+        text = generate_sample_text(word_count) if mode == "words" else generate_sample_text(45)
+        return jsonify({"message": "Game started successfully", "text": text}), 200
+
+    except Exception as e:
+        return jsonify({"message": "An error occurred while starting the game"}), 500

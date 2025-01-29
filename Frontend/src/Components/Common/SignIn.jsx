@@ -1,15 +1,60 @@
 import React from 'react'
 import '../../Font.css'
+import axios from 'axios';
 
-const SignIn = ({setSignInMethod}) =>{
-    const setSignInMethodHandler =(a) =>{
-        if (a===1){
+const SignIn = ({ setSignInMethod, apiUrl }) => {
+    const setSignInMethodHandler = (a) => {
+        if (a === 1) {
             setSignInMethod(true)
         }
-        else if (a===0){
+        else if (a === 0) {
             setSignInMethod(false)
         }
     }
+
+    const handleSignIn = async (email, password) => {
+        try {
+            console.log("Requesting login with username/email:", email, "and password:", password);
+
+            const response = await axios.post(`${apiUrl}/user/login`, {
+                username_or_email: email,
+                password: password
+            });
+
+            const data = response.data;
+            if (response.status === 200) {
+                localStorage.setItem("token", data.access_token);
+
+                document.cookie = `access_token=${data.access_token}; path=/; SameSite=Lax;`;
+
+                console.log("Login successful:", data);
+                window.location.href = '/profile';
+            } else {
+                console.error("Login failed with response:", data);
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error("Error logging in:", error);
+            alert("An error occurred while trying to sign in.");
+        }
+    };
+
+
+
+    const handleSubmitSignIn = (event) => {
+        event.preventDefault();
+        const email = event.target.email.value;
+        const password = event.target.password.value;
+
+        // Check if email and password are empty before making the request
+        if (!email || !password) {
+            alert("Please fill in both email and password.");
+            return;
+        }
+
+        handleSignIn(email, password);
+    };
+
     return (
         <>
             <div className="flex items-center justify-center mt-10 p-4 pb-10">
@@ -48,7 +93,7 @@ const SignIn = ({setSignInMethod}) =>{
                                         data-orientation="horizontal"
                                         data-radix-collection-item=""
                                         onClick={() => setSignInMethodHandler(1)}
-                                        >
+                                    >
                                         Sign In
                                     </button>
                                     <button
@@ -77,7 +122,7 @@ const SignIn = ({setSignInMethod}) =>{
                                     className="mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                     style={{ animationDuration: "0s" }}
                                 >
-                                    <form className="space-y-4 text-neutral-200">
+                                    <form onSubmit={handleSubmitSignIn} className="space-y-4 text-neutral-200">
                                         <div style={{ transform: "translateY(20px)" }}>
                                             <div className="space-y-2">
                                                 <label

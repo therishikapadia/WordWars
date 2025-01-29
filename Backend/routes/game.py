@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from controllers.game.game_controller import start_game, end_game
+from controllers.game.game_controller import start_game, end_game,start_game_without_login
 from app import mongo
 
 # Blueprint definition
@@ -32,3 +32,11 @@ def end_game_route():
 
     user_id = str(user["_id"])  # Convert the ObjectId to a string
     return end_game(game_id, user_id, wpm, accuracy,time_taken)
+
+
+@game.route('/startWithoutLogin', methods=['POST'])
+def start_game_without_login_route():
+    mode = request.json.get('mode')
+    word_count = request.json.get('word_count')
+    time_duration = request.json.get('time_duration')
+    return start_game_without_login(mode, word_count, time_duration)

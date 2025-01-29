@@ -5,16 +5,19 @@ from flask_jwt_extended import JWTManager
 from flask_socketio import SocketIO
 from sockets.game_sockets import register_game_sockets
 from datetime import timedelta
+from flask_cors import CORS
 
 # Global variables for extensions
 mongo = None
 bcrypt = None
 socketio = None
 
+
 def create_app():
     global mongo, bcrypt, socketio
     app = Flask(__name__)
-
+    CORS(app, resources={r"/*": {"origins": "http://localhost:5173", "supports_credentials": True}})
+    
     # MongoDB configuration
     app.config["MONGO_URI"] = "mongodb://localhost:27017/mydatabase"
     app.config['SECRET_KEY'] = '1Word@Wars1'

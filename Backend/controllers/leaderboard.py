@@ -2,7 +2,7 @@ from flask import jsonify
 from app import mongo
 import logging
 
-# logger = logging.getLogger(__name__) 
+logger = logging.getLogger(__name__)
 
 def get_leaderboard():
     try:
@@ -15,16 +15,16 @@ def get_leaderboard():
             'stats.overall.all_time_best': 1
         }).sort('stats.overall.average_wpm', -1).limit(10)
 
+        # Convert cursor to list
+        users_list = list(users)  # Converting cursor to a list for easier iteration
+
         # Print users for debugging
         logger.debug("Printing users from MongoDB cursor:")
-        for user in users:
+        for user in users_list:
             logger.debug(user)  # Print each user document
 
-        # Reset the cursor (if needed)
-        users.rewind()
-
         leaderboard = []
-        for user in users:
+        for user in users_list:
             leaderboard.append({
                 'username': user['username'],
                 'tests_completed': user['stats']['overall']['tests_completed'],
@@ -41,8 +41,7 @@ def get_leaderboard():
     except Exception as e:
         logger.error(f"An error occurred: {e}", exc_info=True)
         return []
-    
-
+        
 
 def get_user_stats(user_id):
     try:

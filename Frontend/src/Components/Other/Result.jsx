@@ -4,7 +4,7 @@ import '../../Font.css';
 import PerformanceChart from './PerformanceChart';
 import { useLocation } from 'react-router-dom';
 
-function Result() {
+function Result({isAuthenticated}) {
     const location = useLocation();
     const { timeElapsed = 0, wpm = 0, accuracy = 0, wpmPerMinute = [] } = location.state || {};
 
@@ -78,7 +78,7 @@ function Result() {
 
     return (
         <div className="antialiased min-h-screen bg-gradient-to-b from-neutral-900 to-black text-neutral-400">
-            <Navbar />
+            <Navbar isAuthenticated={isAuthenticated} />
             <main className="grid place-content-center mt-20">
                 <div className="w-full max-w-5xl mx-auto space-y-8 pb-8 px-4 sm:px-6 lg:px-8">
                     {/* Stats Section */}

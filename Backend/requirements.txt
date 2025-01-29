@@ -6,3 +6,4 @@ logging
 flask_jwt_extended
 faker
 flask_socketio
+flask_cors
