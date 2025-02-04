@@ -12,17 +12,16 @@ function LeaderBoard({ isAuthenticated, apiUrl }) {
         axios.get(`${apiUrl}/leaderboard/top10`)
             .then(response => {
                 setTimeout(() => {
-                    setData(response.data);
+                    setData(response.data.leaderboard);
                     setLoading(false);
-                }, 2000);
+                }, 1000);
             })
             .catch(err => {
                 console.error("Error fetching data:", err);
                 setError("Failed to load data.");
                 setLoading(false);
             });
-    }, [apiUrl]);
-
+    }, [apiUrl]);   
     console.log(data)
     if (error) return <p>{error}</p>;
     return (
@@ -83,16 +82,9 @@ function LeaderBoard({ isAuthenticated, apiUrl }) {
                                     </svg>
                                 </div>) : <></>}
                             </div>
+                            {loading===false ? 
                             <div className="overflow-x-auto">
-                                <div
-                                    dir="ltr"
-                                    className="relative overflow-hidden h-[300px] pr-4"
-                                    style={{
-                                        position: "relative",
-                                        "--radix-scroll-area-corner-width": "0px",
-                                        "--radix-scroll-area-corner-height": "0px",
-                                    }}
-                                >
+                                <div dir="ltr" className="relative overflow-hidden h-[300px] pr-4">
                                     <style
                                         dangerouslySetInnerHTML={{
                                             __html:
@@ -104,186 +96,30 @@ function LeaderBoard({ isAuthenticated, apiUrl }) {
                                         className="h-full w-full rounded-[inherit]"
                                         style={{ overflow: "hidden scroll" }}
                                     >
-                                        <div style={{ "minWidth": "100%", display: "table" }}>
+                                        <div style={{ minWidth: "100%", display: "table" }}>
                                             <div className="relative w-full overflow-auto">
                                                 <table className="w-full caption-bottom text-sm">
                                                     <thead className="[&_tr]:border-b">
-                                                        <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                                                            <th className="h-10 px-2 text-left align-middle font-medium [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-300">
-                                                                Rank
-                                                            </th>
-                                                            <th className="h-10 px-2 text-left align-middle font-medium [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-300">
-                                                                Name
-                                                            </th>
-                                                            <th className="h-10 px-2 text-left align-middle font-medium [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-300">
-                                                                WPM
-                                                            </th>
-                                                            <th className="h-10 px-2 text-left align-middle font-medium [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-300 hidden sm:table-cell">
-                                                                Accuracy
-                                                            </th>
-                                                            <th className="h-10 px-2 text-left align-middle font-medium [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-300 hidden md:table-cell">
-                                                                Time
-                                                            </th>
-                                                            <th className="h-10 px-2 text-left align-middle font-medium [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-300 hidden lg:table-cell">
-                                                                Mode
-                                                            </th>
+                                                        <tr className="border-b geist-mono-latin-700 transition-colors hover:bg-muted/50">
+                                                            <th className="h-10 px-2 text-left align-middle font-medium text-gray-300">Rank</th>
+                                                            <th className="h-10 px-2 text-left align-middle font-medium text-gray-300">Name</th>
+                                                            <th className="h-10 px-2 text-left align-middle font-medium text-gray-300">WPM</th>
+                                                            <th className="h-10 px-2 text-left align-middle font-medium text-gray-300 hidden sm:table-cell">Accuracy</th>
+                                                            <th className="h-10 px-2 text-left align-middle font-medium text-gray-300 hidden md:table-cell">Time</th>
+                                                            <th className="h-10 px-2 text-left align-middle font-medium text-gray-300 hidden lg:table-cell">Mode</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="[&_tr:last-child]:border-0">
-                                                        <tr className="border-b transition-colors data-[state=selected]:bg-muted hover:bg-neutral-800/50">
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-medium text-gray-100">
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    width={24}
-                                                                    height={24}
-                                                                    viewBox="0 0 24 24"
-                                                                    fill="none"
-                                                                    stroke="currentColor"
-                                                                    strokeWidth={2}
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    className="lucide lucide-medal size-4 sm:size-5 text-yellow-400"
-                                                                >
-                                                                    <path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15" />
-                                                                    <path d="M11 12 5.12 2.2" />
-                                                                    <path d="m13 12 5.88-9.8" />
-                                                                    <path d="M8 7h8" />
-                                                                    <circle cx={12} cy={17} r={5} />
-                                                                    <path d="M12 18v-2h-.5" />
-                                                                </svg>
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-100">
-                                                                Buriza
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-sky-400">
-                                                                174
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-emerald-400 hidden sm:table-cell">
-                                                                100%
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-violet-400 hidden md:table-cell">
-                                                                4s
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-300 hidden lg:table-cell">
-                                                                words
-                                                            </td>
-                                                        </tr>
-                                                        <tr className="border-b transition-colors data-[state=selected]:bg-muted hover:bg-neutral-800/50">
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-medium text-gray-100">
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    width={24}
-                                                                    height={24}
-                                                                    viewBox="0 0 24 24"
-                                                                    fill="none"
-                                                                    stroke="currentColor"
-                                                                    strokeWidth={2}
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    className="lucide lucide-medal size-4 sm:size-5 text-gray-400"
-                                                                >
-                                                                    <path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15" />
-                                                                    <path d="M11 12 5.12 2.2" />
-                                                                    <path d="m13 12 5.88-9.8" />
-                                                                    <path d="M8 7h8" />
-                                                                    <circle cx={12} cy={17} r={5} />
-                                                                    <path d="M12 18v-2h-.5" />
-                                                                </svg>
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-100">
-                                                                Ritik Sahni
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-sky-400">
-                                                                122
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-emerald-400 hidden sm:table-cell">
-                                                                100%
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-violet-400 hidden md:table-cell">
-                                                                6s
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-300 hidden lg:table-cell">
-                                                                words
-                                                            </td>
-                                                        </tr>
-                                                        <tr className="border-b transition-colors data-[state=selected]:bg-muted hover:bg-neutral-800/50">
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-medium text-gray-100">
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    width={24}
-                                                                    height={24}
-                                                                    viewBox="0 0 24 24"
-                                                                    fill="none"
-                                                                    stroke="currentColor"
-                                                                    strokeWidth={2}
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    className="lucide lucide-medal size-4 sm:size-5 text-amber-600"
-                                                                >
-                                                                    <path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15" />
-                                                                    <path d="M11 12 5.12 2.2" />
-                                                                    <path d="m13 12 5.88-9.8" />
-                                                                    <path d="M8 7h8" />
-                                                                    <circle cx={12} cy={17} r={5} />
-                                                                    <path d="M12 18v-2h-.5" />
-                                                                </svg>
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-100">
-                                                                Aayush Jaiswal
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-sky-400">
-                                                                118
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-emerald-400 hidden sm:table-cell">
-                                                                100%
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-violet-400 hidden md:table-cell">
-                                                                5s
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-300 hidden lg:table-cell">
-                                                                words
-                                                            </td>
-                                                        </tr>
-                                                        <tr className="border-b transition-colors data-[state=selected]:bg-muted hover:bg-neutral-800/50">
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-medium text-gray-100">
-                                                                4
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-100">
-                                                                Hemant
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-sky-400">
-                                                                99
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-emerald-400 hidden sm:table-cell">
-                                                                100%
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-violet-400 hidden md:table-cell">
-                                                                7s
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-300 hidden lg:table-cell">
-                                                                words
-                                                            </td>
-                                                        </tr>
-                                                        <tr className="border-b transition-colors data-[state=selected]:bg-muted hover:bg-neutral-800/50">
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-medium text-gray-100">
-                                                                5
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-100">
-                                                                jaydeep patil
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-sky-400">
-                                                                98
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-emerald-400 hidden sm:table-cell">
-                                                                100%
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-violet-400 hidden md:table-cell">
-                                                                8s
-                                                            </td>
-                                                            <td className="p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-gray-300 hidden lg:table-cell">
-                                                                words
-                                                            </td>
-                                                        </tr>
+                                                        {data.map((player, index) => (
+                                                            <tr key={index} className="border-b geist-mono-latin-400 transition-colors hover:bg-neutral-800/50">
+                                                                <td className="p-2 align-middle font-medium text-gray-100">{index + 1}</td>
+                                                                <td className="p-2 align-middle text-gray-100">{player.username}</td>
+                                                                <td className="p-2 align-middle text-sky-400">{player.wpm}</td>
+                                                                <td className="p-2 align-middle text-emerald-400 hidden sm:table-cell">{player.accuracy}%</td>
+                                                                <td className="p-2 align-middle text-violet-400 hidden md:table-cell">{player.best_words_mode_wpm}s</td>
+                                                                <td className="p-2 align-middle text-gray-300 hidden lg:table-cell">words</td>
+                                                            </tr>
+                                                        ))}
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -291,6 +127,7 @@ function LeaderBoard({ isAuthenticated, apiUrl }) {
                                     </div>
                                 </div>
                             </div>
+                            :<></>}
                         </div>
                     </div>
                 </div>
