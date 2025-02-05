@@ -34,7 +34,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route index element={<Home isAuthenticated={isAuthenticated} />} />
-        <Route path="/type" element={<Type isAuthenticated={isAuthenticated} />} />
+        <Route path="/type" element={<Type isAuthenticated={isAuthenticated} apiUrl={apiUrl} />} />
         <Route path="/result" element={<Result isAuthenticated={isAuthenticated} />} />
         <Route path="/leaderboard" element={<LeaderBoard apiUrl={apiUrl} isAuthenticated={isAuthenticated} />} />
         <Route path="/logout" element={<Logout setIsAuthenticated={setIsAuthenticated} />} />
