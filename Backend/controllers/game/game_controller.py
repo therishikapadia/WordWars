@@ -68,7 +68,7 @@ def end_game(game_id, user_id, wpm, accuracy, time_taken=None):
         if time_taken is not None:
             update_data["players.$.time_taken"] = time_taken
 
-        update_result = mongo.db.games.update_one(
+        update_result = mongo.db.games.insert_one(
             {"_id": game_id, "players.user_id": user_id},
             {"$set": update_data}
         )
@@ -129,6 +129,13 @@ def end_game(game_id, user_id, wpm, accuracy, time_taken=None):
     except Exception as e:
         logger.error(f"An error occurred while ending the game: {str(e)}")
         return jsonify({"message": "An error occurred while ending the game"}), 500
+
+def del_game(game_id):
+    try:
+        delete=mongo.db.game.find_one_and_delete({"_id":ObjectId(game_id)})
+        return jsonify({"message": "Game deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"message": "An error occurred while starting the game"}), 500
     
 
 def start_game_without_login(mode, word_count=None, time_duration=None):
