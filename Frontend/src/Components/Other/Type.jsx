@@ -85,9 +85,16 @@ const Type = ({ isAuthenticated, apiUrl }) => {
         if (userInput.length === targetText.length && targetText.length > 0) {
             // Set the game as finished
             setIsFinished(true);
+            console.log("hello rishi")
 
             const submitResults = async () => {
                 try {
+
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${yourToken}` // Example for token-based auth
+                    };
+
                     // Only call the /end API if the game is finished
                     if (isFinished && isAuthenticated && gameId) {
                         await axios.post(`${apiUrl}/game/end`, {
@@ -95,6 +102,9 @@ const Type = ({ isAuthenticated, apiUrl }) => {
                             wpm: wpm,
                             accuracy: accuracy,
                             time_taken: timeElapsed
+                        }, {
+                            headers,
+                            withCredentials: true,
                         });
                     }
                     // Navigate to the result page
@@ -132,6 +142,27 @@ const Type = ({ isAuthenticated, apiUrl }) => {
             );
         });
     };
+
+    useEffect(() => {
+        if (!isLoading && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [isLoading]);
+
+    useEffect(() => {
+        const fetchText = async () => {
+            // Reset game state
+            setUserInput("");
+            setStartTime(null);
+            setTimeElapsed(0);
+            setWpm(0);
+            setAccuracy(100);
+            setIsFinished(false);
+
+            // Rest of fetch logic
+        };
+        fetchText();
+    }, [mode, wordCount, timeDuration, isAuthenticated]);
 
     useEffect(() => {
         const fetchText = async () => {
@@ -244,7 +275,7 @@ const Type = ({ isAuthenticated, apiUrl }) => {
                             {mode === 'words' ? (
                                 <>
                                     <button
-                                        className={`rounded-full px-3 py-1 min-w-[2rem] ${wordCount === 10 ? 'bg-neutral-800 text-neutral-200' : 'text-neutral-400 hover:bg-neutral-800/50'
+                                        className={`rounded-full px-3 py-1 min-w-[2rem] ${wordCount === 15 ? 'bg-neutral-800 text-neutral-200' : 'text-neutral-400 hover:bg-neutral-800/50'
                                             }`}
                                         onClick={() => setWordCount(15)}
                                     >
@@ -305,7 +336,6 @@ const Type = ({ isAuthenticated, apiUrl }) => {
                             onChange={handleInputChange}
                             onKeyDown={handleKeyDown}
                             disabled={isLoading}
-                        // autoFocus
                         />
                     </div>
                     <div className="mt-8 text-center geist-mono-latin-400 text-xl">

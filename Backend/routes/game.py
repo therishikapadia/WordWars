@@ -23,7 +23,6 @@ def end_game_route():
     wpm = request.json.get('wpm')
     accuracy = request.json.get('accuracy')
     time_taken =request.json.get('time_taken')
-    print(time_taken)
 
     # Fetch user from the database using `current_user`
     user = mongo.db.users.find_one({"username": current_user})

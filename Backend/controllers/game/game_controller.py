@@ -128,14 +128,14 @@ def end_game(game_id, user_id, wpm, accuracy, time_taken=None):
 
     except Exception as e:
         logger.error(f"An error occurred while ending the game: {str(e)}")
-        return jsonify({"message": "An error occurred while ending the game"}), 500
+        return jsonify({"message": "An error occurred while ending the game", "error": str(e)}), 500
 
 def del_game(game_id):
     try:
-        delete=mongo.db.game.find_one_and_delete({"_id":ObjectId(game_id)})
+        delete = mongo.db.games.find_one_and_delete({"_id": ObjectId(game_id)})
         return jsonify({"message": "Game deleted successfully"}), 200
     except Exception as e:
-        return jsonify({"message": "An error occurred while starting the game"}), 500
+        return jsonify({"message": str(e)}), 500
     
 
 def start_game_without_login(mode, word_count=None, time_duration=None):
