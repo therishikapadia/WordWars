@@ -17,7 +17,6 @@ def create_app():
     global mongo, bcrypt, socketio
     app = Flask(__name__)
     CORS(app, resources={r"/*": {"origins": "http://localhost:5173", "supports_credentials": True}})
-    
     # MongoDB configuration
     app.config["MONGO_URI"] = "mongodb://localhost:27017/mydatabase"
     app.config['SECRET_KEY'] = '1Word@Wars1'
@@ -27,7 +26,7 @@ def create_app():
     mongo = PyMongo(app)
     bcrypt = Bcrypt(app)
     jwt = JWTManager(app)
-    socketio = SocketIO(app)
+    socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173", async_mode=None)
 
     # Register Socket.IO event handlers
     register_game_sockets(socketio)
