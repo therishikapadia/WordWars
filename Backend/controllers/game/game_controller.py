@@ -68,7 +68,7 @@ def end_game(game_id, user_id, wpm, accuracy, time_taken=None):
         if time_taken is not None:
             update_data["players.$.time_taken"] = time_taken
 
-        update_result = mongo.db.games.insert_one(
+        update_result = mongo.db.games.update_one(
             {"_id": game_id, "players.user_id": user_id},
             {"$set": update_data}
         )
