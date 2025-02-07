@@ -85,7 +85,6 @@ const Type = ({ isAuthenticated, apiUrl }) => {
         if (userInput.length === targetText.length && targetText.length > 0) {
             // Set the game as finished
             setIsFinished(true);
-            console.log("hello rishi")
 
             const submitResults = async () => {
                 try {

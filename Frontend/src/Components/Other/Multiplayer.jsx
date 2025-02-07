@@ -1,59 +1,122 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
-import Lobby from "../Other/Lobby";
-import Game from "../Other/Game";
+import Lobby from "./Lobby";
+import Game from "./Game";
+import Navbar from "../Common/Navbar"; // Assuming you have a Navbar component
+import "../../Font.css"; // Custom font styles
 
-const socket = io("http://127.0.0.1:5000", {
-    transports: ["websocket", "polling"], // Try WebSocket first, then fallback to polling
-  });   
-export default function Multiplayer() {
-  const [gameState, setGameState] = useState("lobby"); // "lobby" or "game"
+const socket = io("http://127.0.0.1:5000"); // Replace with your server URL
+
+export default function Multiplayer({ isAuthenticated }) {
   const [username, setUsername] = useState("");
   const [gameId, setGameId] = useState("");
   const [sentence, setSentence] = useState("");
+  const [players, setPlayers] = useState([]);
+  const [results, setResults] = useState({});
+  const [stats, setStats] = useState({});
   const [isCreator, setIsCreator] = useState(false);
+  const [isInGame, setIsInGame] = useState(false);
 
+  // Handle creating a new game
+  const handleCreateGame = (mode, wordCount, timeDuration) => {
+    if (!username) {
+      alert("Please enter a username.");
+      return;
+    }
+    socket.emit("create_game", username, mode, wordCount, timeDuration);
+  };
+
+  // Handle joining an existing game
+  const handleJoinGame = () => {
+    if (!username || !gameId) {
+      alert("Please enter both username and game ID.");
+      return;
+    }
+    socket.emit("join_game", { game_id: gameId, username });
+  };
+
+  // Handle starting the game
+  const handleStartGame = () => {
+    if (isCreator) {
+      socket.emit("start_game_for_all", { game_id: gameId });
+    }
+  };
+
+  // WebSocket event listeners
   useEffect(() => {
-    socket.on("game_created", (data) => {
-      setGameId(data.game_id);
-      setIsCreator(data.is_creator);
-      setGameState("game");
+    socket.on("game_created", ({ game_id, is_creator }) => {
+      setGameId(game_id);
+      setIsCreator(is_creator);
     });
 
-    socket.on("game_started_for_all", (data) => {
-      setSentence(data.sentence);
+    socket.on("player_joined", ({ username }) => {
+      setPlayers((prevPlayers) => [...prevPlayers, username]);
+    });
+
+    socket.on("update_players", ({ players }) => {
+      setPlayers(players.map((p) => p.username));
+    });
+
+    socket.on("game_started_for_all", ({ sentence }) => {
+      setSentence(sentence);
+      setIsInGame(true);
+    });
+
+    socket.on("update_leaderboard", (updatedStats) => {
+      setStats(updatedStats); // Update real-time stats
+    });
+
+    socket.on("game_over", ({ results }) => {
+      setResults(results);
+      setIsInGame(false);
+    });
+
+    socket.on("error", ({ message }) => {
+      alert(message);
     });
 
     return () => {
       socket.off("game_created");
+      socket.off("player_joined");
+      socket.off("update_players");
       socket.off("game_started_for_all");
+      socket.off("update_leaderboard");
+      socket.off("game_over");
+      socket.off("error");
     };
   }, []);
 
-  const handleCreateGame = (mode, wordCount, timeDuration) => {
-    socket.emit("create_game", username, mode, wordCount, timeDuration);
-  };
-
-  const handleJoinGame = () => {
-    socket.emit("join_game", { game_id: gameId, username: username });
-    setGameState("game");
-  };
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold mb-8">Multiplayer Typing Speed Test</h1>
-      {gameState === "lobby" ? (
-        <Lobby
-          username={username}
-          setUsername={setUsername}
-          gameId={gameId}
-          setGameId={setGameId}
-          onCreateGame={handleCreateGame}
-          onJoinGame={handleJoinGame}
-        />
-      ) : (
-        <Game sentence={sentence} isCreator={isCreator} />
-      )}
+    <div className="min-h-screen bg-gradient-to-b from-neutral-900 to-black text-neutral-400 antialiased">
+      {/* Navbar */}
+      <Navbar isAuthenticated={isAuthenticated} />
+
+      {/* Main Content */}
+      <div className="rounded-xl border shadow bg-neutral-900/50 border-neutral-800 text-neutral-200 mx-20 mt-8 p-8">
+        {!isInGame ? (
+          <Lobby
+            username={username}
+            setUsername={setUsername}
+            gameId={gameId}
+            setGameId={setGameId}
+            onCreateGame={handleCreateGame}
+            onJoinGame={handleJoinGame}
+            onStartGame={handleStartGame}
+            isCreator={isCreator}
+            players={players}
+          />
+        ) : (
+          <Game
+            sentence={sentence}
+            isCreator={isCreator}
+            stats={stats}
+            results={results}
+            username={username}
+            gameId={gameId}
+            socket={socket} // Pass the socket object as a prop
+          />
+        )}
+      </div>
     </div>
   );
 }
