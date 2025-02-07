@@ -45,7 +45,7 @@ function App() {
         
         <Route
           path="/multiplayer"
-          element={isAuthenticated ? <Multiplayer isAuthenticated={isAuthenticated} /> : <Navigate to="/auth" />}
+          element={isAuthenticated ? <Multiplayer isAuthenticated={isAuthenticated} apiUrl={apiUrl} /> : <Navigate to="/auth" />}
         />
 
         <Route

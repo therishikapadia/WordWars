@@ -1,7 +1,7 @@
 import React from 'react'
 import Navbar from '../Common/Navbar'
 import '../../Font.css'
-function Multiplayer({isAuthenticated}) {
+function Multiplayer({isAuthenticated , apiUrl}) {
     return (
         <div className='__className_ea5f4b antialiased min-h-screen bg-gradient-to-b from-neutral-900 to-black text-neutral-400'>
             <Navbar isAuthenticated={isAuthenticated} />

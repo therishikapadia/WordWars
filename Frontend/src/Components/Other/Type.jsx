@@ -100,7 +100,7 @@ const Type = ({ isAuthenticated, apiUrl }) => {
                         await axios.post(`${apiUrl}/game/end`, {
                             game_id: gameId,
                             wpm: wpm,
-                            accuracy: accuracy,
+                            accuracy: parseFloat(accuracy),
                             time_taken: timeElapsed
                         }, {
                             headers,
@@ -207,9 +207,10 @@ const Type = ({ isAuthenticated, apiUrl }) => {
     useEffect(() => {
         if (shouldFocus && inputRef.current) {
             inputRef.current.focus();
-            setShouldFocus(false); // Reset focus state
+            setShouldFocus(false);
         }
     }, [shouldFocus]);
+
 
     return (
         <div className="antialiased min-h-screen bg-gradient-to-b from-neutral-900 to-black text-neutral-400">
