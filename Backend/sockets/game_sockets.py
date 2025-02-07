@@ -75,7 +75,6 @@ def register_game_sockets(socketio):
         username = data['username']
         wpm = data['wpm']
         accuracy = data['accuracy']
-
         if game_id in games:
             games[game_id]['stats'][username] = {'wpm': wpm, 'accuracy': accuracy}
             emit('update_leaderboard', games[game_id]['stats'], room=game_id)
@@ -84,18 +83,21 @@ def register_game_sockets(socketio):
     def handle_submit_result(data):
         game_id = data['game_id']
         username = data['username']
-        typed_text = data['typed_text']
         wpm = data['wpm']
         accuracy = data['accuracy']
-
         if game_id in games:
+            # Store the player's result
             games[game_id]['results'][username] = {'wpm': wpm, 'accuracy': accuracy}
+
+            # Notify all players that this user has submitted their result
             emit('result_submitted', {
                 'username': username,
                 'wpm': wpm,
                 'accuracy': accuracy
             }, room=game_id)
 
+            # Check if all players have submitted their results
             if len(games[game_id]['results']) == len(games[game_id]['players']):
+                # Broadcast the final results and end the game
                 emit('game_over', {'results': games[game_id]['results']}, room=game_id)
-                del games[game_id]
+                del games[game_id]  # Clean up the game from memory
