@@ -2,8 +2,6 @@
 
 WordWars is a fast-paced, real-time multiplayer word game where players race against the clock to form words from a given set of letters. Perfect for challenging your vocabulary and reflexes, whether you're playing with friends or competing globally.
 
-
-
 ---
 
 ## 🎮 Features
@@ -14,6 +12,15 @@ WordWars is a fast-paced, real-time multiplayer word game where players race aga
 * ⏱️ Timer-based gameplay to test quick thinking
 * 🏆 Scoreboard to track performance
 * 🎨 Vibrant UI with animated feedback
+
+---
+
+## 📸 Screenshots
+
+| Hero Section | Gameplay Interface | Grid |
+|-------------|------------------|-------------|
+| ![Hero](./screenshots/hero.png) | ![Gameplay](./screenshots/game.png) | ![Grid](./screenshots/grid.png) |
+
 
 ---
 
@@ -33,6 +40,8 @@ WordWars is a fast-paced, real-time multiplayer word game where players race aga
 * npm or yarn
 * MongoDB running locally or Atlas
 
+---
+
 ### 🔧 Backend Setup
 
 ```bash
@@ -40,4 +49,3 @@ git clone https://github.com/your-username/wordwars.git
 cd wordwars/backend
 npm install
 npm run dev
-```
